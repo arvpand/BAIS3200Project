@@ -19,6 +19,10 @@ const TeacherSchema = new mongoose.Schema({
     phoneExtension: {
         type: Number
     },
+    school: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'school'
+    }
 })
 
 const Teacher = mongoose.model('teacher', TeacherSchema);

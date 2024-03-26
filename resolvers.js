@@ -1,5 +1,7 @@
 const Post = require('./models/Post.model');
 const Parent = require('./models/ParentModel');
+const School = require('./models/SchoolModel');
+const Teacher = require('./models/TeacherModel');
 
 
 const resolvers = {
@@ -26,6 +28,26 @@ const resolvers = {
         getParent: async (parent, args, context, info) =>
         {
             return await Parent.findById(args.id).exec();
+        },
+
+        // School Resolvers
+        getAllSchools: async () =>
+        {
+            return await School.find().exec();
+        },
+        getSchool: async (parent, args, context, info) =>
+        {
+            return await School.findById(args.id).exec();
+        },
+
+        // Teacher Resolvers
+        getAllTeachers: async () =>
+        {
+            return await Teacher.find().exec();
+        },
+        getTeacher: async (parent, args, context, info) =>
+        {
+            return await Teacher.findById(args.id).exec();
         }
     },
 
@@ -70,7 +92,27 @@ const resolvers = {
 
             const parentValue = await Parent.findByIdAndUpdate(args.id, { parentName, contactInfo, alternateContact, relationshipToStudent }, { new: true }).exec();
             return parentValue;
-        }
+        },
+
+        // School Mutations
+        createSchool: async (parent, args, context, info) =>
+        {
+            const { schoolName, address, schoolContact, schoolType } = args.school;
+            const school = new School({ schoolName, address, schoolContact, schoolType });
+            await school.save();
+            return school;
+        },
+        deleteSchool: async (parent, args, context, info) =>
+        {
+            const school = await School.findOneAndDelete({ _id: args.id }).exec();
+            return 'School deleted successfully!';
+        },
+        updateSchool: async (parent, args, context, info) =>
+        {
+            const { schoolName, address, schoolContact, schoolType } = args.school;
+            const school = await School.findByIdAndUpdate(args.id, { schoolName, address, schoolContact, schoolType }, { new: true }).exec();
+            return school;
+        },
     }
 }
 module.exports = resolvers;

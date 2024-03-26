@@ -7,6 +7,7 @@ const typeDefs = gql`
         description: String
     }
 
+    # Parent Types
     type ParentName {
         firstName: String!
         lastName: String!
@@ -31,14 +32,63 @@ const typeDefs = gql`
         relationshipToStudent: String
     }
 
+    # School Types
+    type Address {
+        street: String
+        city: String
+        province: String
+        postalCode: String
+    }
+
+    type SchoolContact {
+        email: String!
+        phone: String!
+    }
+
+    type School {
+        id: ID!
+        schoolName: String!
+        address: Address!
+        schoolContact: SchoolContact!
+        schoolType: String!
+    }
+
+    #Teacher Types
+    type TeacherName {
+        firstName: String!
+        lastName: String!
+    }
+
+    type Teacher {
+        id: ID!
+        teacherName: TeacherName!
+        email: String!
+        subjectsTaught: [String]
+        phoneExtension: Int,
+        school: School
+    }
+
+    # Student Types
+
     
+
+    # Query 
     type Query {
         hello: String
         getAllPosts: [Post]
         getPost(id: ID!): Post
 
+        # Parent Queries
         getAllParents: [Parent]
         getParent(id: ID!): Parent
+
+        # School Queries
+        getAllSchools: [School]
+        getSchool(id: ID!): School
+
+        # Teacher Queries
+        getAllTeachers: [Teacher]
+        getTeacher(id: ID!): Teacher
     }
 
     input PostInput {
@@ -68,14 +118,41 @@ const typeDefs = gql`
         relationshipToStudent: String
     }
 
+    input SchoolAddressInput {
+        street: String
+        city: String
+        province: String
+        postalCode: String
+    }
+
+    input SchoolContactInput {
+        email: String!
+        phone: String!
+    }
+
+    input SchoolInput {
+        schoolName: String!
+        address: SchoolAddressInput
+        schoolContact: SchoolContactInput!
+        schoolType: String!
+    }
+
+
+    # Mutation 
     type Mutation {
         createPost(post: PostInput): Post
         deletePost(id: ID!): String
         updatePost(id: ID!, post: PostInput): Post
 
+        # Parent Mutations
         createParent(parent: ParentInput): Parent
         deleteParent(id: ID!): String
         updateParent(id: ID!, parent: ParentInput): Parent
+
+        # School Mutations
+        createSchool(school: SchoolInput): School
+        deleteSchool(id: ID!): String
+        updateSchool(id: ID!, school: SchoolInput): School
     }
 `
 

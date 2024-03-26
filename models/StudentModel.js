@@ -19,6 +19,12 @@ const StudentSchema = new mongoose.Schema({
         type: String
     },
     medicalConditions: [String],
+    parent: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'parent'
+    },
+
 })
 
 const Student = mongoose.model('student', StudentSchema);
