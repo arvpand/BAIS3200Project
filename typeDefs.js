@@ -1,4 +1,5 @@
 const { gql } = require('apollo-server-express');
+const {GraphQLString} = require('graphql');
 
 const typeDefs = gql`
     type Post {
@@ -70,7 +71,6 @@ const typeDefs = gql`
 
     # Student Types
 
-    
 
     # Query 
     type Query {
@@ -137,6 +137,19 @@ const typeDefs = gql`
         schoolType: String!
     }
 
+    input TeacherNameInput {
+        firstName: String!
+        lastName: String!
+    }
+
+    input TeacherInput {
+        teacherName: TeacherNameInput!
+        email: String!
+        subjectsTaught: [String]
+        phoneExtension: Int,
+        school: ID
+    }
+
 
     # Mutation 
     type Mutation {
@@ -153,6 +166,11 @@ const typeDefs = gql`
         createSchool(school: SchoolInput): School
         deleteSchool(id: ID!): String
         updateSchool(id: ID!, school: SchoolInput): School
+
+        # Teacher Mutations
+        createTeacher(teacher: TeacherInput): Teacher
+        deleteTeacher(id: ID!): String
+        updateTeacher(id: ID!, teacher: TeacherInput): Teacher
     }
 `
 
