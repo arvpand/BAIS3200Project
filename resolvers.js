@@ -100,8 +100,6 @@ const resolvers = {
         // Teacher Mutations
         createTeacher: async (parent, args, context, info) => {
             const { teacherName, email, subjectsTaught, phoneExtension, school } = args.teacher;
-            console.log(school);
-            console.log(typeof school);
             // Assuming `schoolId` is a valid ID for an existing school
             const findSchool = await School.findById(school);
 
@@ -129,12 +127,13 @@ const resolvers = {
             return 'Teacher deleted successfully!';
         },
         updateTeacher: async (parent, args, context, info) => {
-            // const { teacherName, email, subjectsTaught, phoneExtension, school } = args.teacher;
-            // const teacher = await Teacher.findByIdAndUpdate(args.id, { teacherName, email, subjectsTaught, phoneExtension, school: school._id }, { new: true }).populate('school').exec();
-            // return teacher;
-
             const { teacherName, email, subjectsTaught, phoneExtension, school } = args.teacher;
-            await Teacher.findByIdAndUpdate(args.id, { teacherName, email, subjectsTaught, phoneExtension, school: school.id }, { new: true }).exec();
+            
+            const findSchool = await School.findById(school);
+            if (!findSchool) {
+                throw new Error('School with the provided ID not found.');
+            }
+            await Teacher.findByIdAndUpdate(args.id, { teacherName, email, subjectsTaught, phoneExtension, school: findSchool._id }, { new: true }).exec();
             const updatedTeacher = await Teacher.findById(args.id).populate('school').exec();
             return updatedTeacher;
         }
