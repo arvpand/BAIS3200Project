@@ -3,6 +3,7 @@ const Post = require('./models/Post.model');
 const Parent = require('./models/ParentModel');
 const School = require('./models/SchoolModel');
 const Teacher = require('./models/TeacherModel');
+const Student = require('./models/StudentModel');
 
 
 const resolvers = {
@@ -40,7 +41,15 @@ const resolvers = {
         },
         getTeacher: async (parent, args, context, info) => {
             return await Teacher.findById(args.id).populate('school').exec();
-        }
+        },
+
+        // Student Resolvers
+        getAllStudents: async () => {
+            return await Student.find().populate('parent').exec();
+        },
+        getStudent: async (parent, args, context, info) => {
+            return await Student.findById(args.id).populate('parent').exec();
+        },
     },
 
     Mutation: {
@@ -136,7 +145,43 @@ const resolvers = {
             await Teacher.findByIdAndUpdate(args.id, { teacherName, email, subjectsTaught, phoneExtension, school: findSchool._id }, { new: true }).exec();
             const updatedTeacher = await Teacher.findById(args.id).populate('school').exec();
             return updatedTeacher;
-        }
+        },
+
+        // Student Mutations
+        createStudent: async (parentinfo, args, context, info) => {
+            const { studentName, grade, allergies, medicalConditions, parent } = args.student;
+            const findParent = await Parent.findById(parent);
+            if (!findParent) {
+                throw new Error('Parent with the provided ID not found.');
+            }
+            const student = await Student.create({
+                studentName: {
+                    firstName: studentName.firstName,
+                    lastName: studentName.lastName
+                },
+                grade,
+                allergies,
+                medicalConditions,
+                parent: findParent._id
+            });
+            await student.save();
+            const createdStudent = await Student.findById(student._id).populate('parent').exec();
+            return createdStudent;
+        },
+        deleteStudent: async (parent, args, context, info) => {
+            const student = await Student.findOneAndDelete({ _id: args.id }).exec();
+            return 'Student deleted successfully!';
+        },
+        updateStudent: async (parentInfo, args, context, info) => {
+            const { studentName, grade, allergies, medicalConditions, parent } = args.student;
+            const findParent = await Parent.findById(parent);
+            if (!findParent) {
+                throw new Error('Parent with the provided ID not found.');
+            }
+            await Student.findByIdAndUpdate(args.id, { studentName, grade, allergies, medicalConditions, parent: findParent._id }, { new: true }).exec();
+            const updatedStudent = await Student.findById(args.id).populate('parent').exec();
+            return updatedStudent;
+        },
     }
 }
 module.exports = resolvers;

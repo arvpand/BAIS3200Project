@@ -70,7 +70,19 @@ const typeDefs = gql`
     }
 
     # Student Types
+    type StudentName {
+        firstName: String!
+        lastName: String!
+    }
 
+    type Student {
+        id: ID!
+        studentName: StudentName!
+        grade: Int!
+        allergies: String
+        medicalConditions: [String]
+        parent: Parent
+    }
 
     # Query 
     type Query {
@@ -89,6 +101,10 @@ const typeDefs = gql`
         # Teacher Queries
         getAllTeachers: [Teacher]
         getTeacher(id: ID!): Teacher
+
+        # Student Queries
+        getAllStudents: [Student]
+        getStudent(id: ID!): Student
     }
 
     input PostInput {
@@ -150,6 +166,18 @@ const typeDefs = gql`
         school: ID
     }
 
+    input StudentNameInput {
+        firstName: String!
+        lastName: String!
+    }
+
+    input StudentInput {
+        studentName: StudentNameInput!
+        grade: Int!
+        allergies: String
+        medicalConditions: [String]
+        parent: ID
+    }
 
     # Mutation 
     type Mutation {
@@ -171,6 +199,11 @@ const typeDefs = gql`
         createTeacher(teacher: TeacherInput): Teacher
         deleteTeacher(id: ID!): String
         updateTeacher(id: ID!, teacher: TeacherInput): Teacher
+
+        # Student Mutations
+        createStudent(student: StudentInput): Student
+        deleteStudent(id: ID!): String
+        updateStudent(id: ID!, student: StudentInput): Student
     }
 `
 
