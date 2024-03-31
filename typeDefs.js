@@ -84,6 +84,26 @@ const typeDefs = gql`
         parent: Parent
     }
 
+    # Meeting Types
+    type dateTimeMeeting {
+        date: String!
+        time: String!
+    }
+    type Meeting {
+        id: ID!
+        title: String!
+        attendees: [String]
+        description: String
+        school: School
+        teacher: Teacher
+        parent: [Parent]
+        meetingDateTime: dateTimeMeeting
+        agenda: String
+        meetingType: String
+        duration: Int
+        notes: String
+    }
+
     # Query 
     type Query {
         hello: String
@@ -105,6 +125,10 @@ const typeDefs = gql`
         # Student Queries
         getAllStudents: [Student]
         getStudent(id: ID!): Student
+
+        # Meeting Queries
+        getAllMeetings: [Meeting]
+        getMeeting(id: ID!): Meeting
     }
 
     input PostInput {
@@ -179,6 +203,25 @@ const typeDefs = gql`
         parent: ID
     }
 
+    input dateTimeMeetingInput {
+        date: String!
+        time: String!
+    }
+
+    input MeetingInput {
+        title: String!
+        attendees: [String]
+        description: String
+        school: ID!
+        teacher: ID!
+        parent: [ID!]!
+        meetingDateTime: dateTimeMeetingInput!
+        agenda: String
+        meetingType: String
+        duration: Int
+        notes: String
+    }
+
     # Mutation 
     type Mutation {
         createPost(post: PostInput): Post
@@ -204,6 +247,11 @@ const typeDefs = gql`
         createStudent(student: StudentInput): Student
         deleteStudent(id: ID!): String
         updateStudent(id: ID!, student: StudentInput): Student
+
+        # Meeting Mutations
+        createMeeting(meeting: MeetingInput): Meeting
+        deleteMeeting(id: ID!): String
+        updateMeeting(id: ID!, meeting: MeetingInput): Meeting
     }
 `
 

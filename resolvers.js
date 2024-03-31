@@ -4,6 +4,7 @@ const Parent = require('./models/ParentModel');
 const School = require('./models/SchoolModel');
 const Teacher = require('./models/TeacherModel');
 const Student = require('./models/StudentModel');
+const Meeting = require('./models/MeetingModel');
 
 
 const resolvers = {
@@ -50,6 +51,14 @@ const resolvers = {
         getStudent: async (parent, args, context, info) => {
             return await Student.findById(args.id).populate('parent').exec();
         },
+
+        // Meeting Resolvers
+        getAllMeetings: async () => {
+            return await Meeting.find().populate('school').populate('teacher').populate('parent').exec();
+        },
+        getMeeting: async (parent, args, context, info) => {
+            return await Meeting.findById(args.id).populate('school').populate('teacher').populate('parent').exec();
+        }
     },
 
     Mutation: {
@@ -136,14 +145,20 @@ const resolvers = {
             return 'Teacher deleted successfully!';
         },
         updateTeacher: async (parent, args, context, info) => {
-            const { teacherName, email, subjectsTaught, phoneExtension, school } = args.teacher;
-            
-            const findSchool = await School.findById(school);
-            if (!findSchool) {
-                throw new Error('School with the provided ID not found.');
+            const {id, teacher} = args;
+            const existingTeacher = await Teacher.findById(id);
+            if (!existingTeacher) {
+                throw new Error('Teacher not found!');
             }
-            await Teacher.findByIdAndUpdate(args.id, { teacherName, email, subjectsTaught, phoneExtension, school: findSchool._id }, { new: true }).exec();
-            const updatedTeacher = await Teacher.findById(args.id).populate('school').exec();
+
+            existingTeacher.teacherName = teacher.teacherName;
+            existingTeacher.email = teacher.email;
+            existingTeacher.subjectsTaught = teacher.subjectsTaught;
+            existingTeacher.phoneExtension = teacher.phoneExtension;
+            existingTeacher.school = teacher.school;
+
+            await existingTeacher.save();
+            const updatedTeacher = await Teacher.findById(existingTeacher._id).populate('school').exec();
             return updatedTeacher;
         },
 
@@ -173,15 +188,85 @@ const resolvers = {
             return 'Student deleted successfully!';
         },
         updateStudent: async (parentInfo, args, context, info) => {
-            const { studentName, grade, allergies, medicalConditions, parent } = args.student;
+            const {id, student} = args;
+            const existingStudent = await Student.findById(id);
+            if (!existingStudent) {
+                throw new Error('Student not found!');
+            }
+
+            existingStudent.studentName = student.studentName;
+            existingStudent.grade = student.grade;
+            existingStudent.allergies = student.allergies;
+            existingStudent.medicalConditions = student.medicalConditions;
+            existingStudent.parent = student.parent;
+
+            await existingStudent.save();
+            const updatedStudent = await Student.findById(existingStudent._id).populate('parent').exec();
+            return updatedStudent;
+        },
+
+        // Meeting Mutations
+        createMeeting: async (parentinfo, args, context, info) => {
+            const { title, attendees, description, school, teacher, parent, meetingDateTime, agenda, meetingType, duration, notes } = args.meeting;
+            const findSchool = await School.findById(school);
+            if (!findSchool) {
+                throw new Error('School with the provided ID not found.');
+            }
+            const findTeacher = await Teacher.findById(teacher);
+            if (!findTeacher) {
+                throw new Error('Teacher with the provided ID not found.');
+            }
+
+            console.log(parent);
+            console.log(typeof parent);
             const findParent = await Parent.findById(parent);
             if (!findParent) {
                 throw new Error('Parent with the provided ID not found.');
             }
-            await Student.findByIdAndUpdate(args.id, { studentName, grade, allergies, medicalConditions, parent: findParent._id }, { new: true }).exec();
-            const updatedStudent = await Student.findById(args.id).populate('parent').exec();
-            return updatedStudent;
+            const meeting = await Meeting.create({
+                title,
+                attendees,
+                description,
+                school: findSchool._id,
+                teacher: findTeacher._id,
+                parent: parent,
+                meetingDateTime,
+                agenda,
+                meetingType,
+                duration,
+                notes
+            });
+            await meeting.save();
+            const createdMeeting = await Meeting.findById(meeting._id).populate('school').populate('teacher').populate('parent').exec();
+            return createdMeeting;
         },
+        deleteMeeting: async (parent, args, context, info) => {
+            const meeting = await Meeting.findOneAndDelete({ _id: args.id }).exec();
+            return 'Meeting deleted successfully!';
+        },
+        updateMeeting: async (parentInfo, args, context, info) => {
+            const {id, meeting} = args;
+            const existingMeeting = await Meeting.findById(id);
+            if (!existingMeeting) {
+                throw new Error('Meeting not found!');
+            }
+
+            existingMeeting.title = meeting.title;
+            existingMeeting.attendees = meeting.attendees;
+            existingMeeting.description = meeting.description;
+            existingMeeting.school = meeting.school;
+            existingMeeting.teacher = meeting.teacher;
+            existingMeeting.parent = meeting.parent;
+            existingMeeting.meetingDateTime = meeting.meetingDateTime;
+            existingMeeting.agenda = meeting.agenda;
+            existingMeeting.meetingType = meeting.meetingType;
+            existingMeeting.duration = meeting.duration;
+            existingMeeting.notes = meeting.notes;
+
+            await existingMeeting.save();
+            const updatedMeeting = await Meeting.findById(existingMeeting._id).populate('school').populate('teacher').populate('parent').exec();
+            return updatedMeeting;
+        }
     }
 }
 module.exports = resolvers;

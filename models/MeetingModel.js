@@ -5,10 +5,6 @@ const MeetingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    date: {
-        type: Date,
-        required: true
-    },
     attendees: [String],
     description: {
         type: String
@@ -28,13 +24,13 @@ const MeetingSchema = new mongoose.Schema({
         required: true,
         ref: 'parent'
     }],
-    dateTime: {
+    meetingDateTime: {
         date: {
             type: Date,
             required: true
         },
         time: {
-            type: TimeRanges,
+            type: String,
             required: true
         }
     },
